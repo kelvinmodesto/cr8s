@@ -1,11 +1,11 @@
 
 [package]
-name = "rocket-users-api-rs"
+name = "c8rs"
 version = "0.1.0"
 edition = "2024"
 
 [dependencies]
-diesel = "2.2.12"
+diesel = "2.3.0"
 rand = "0.9.2"
 rocket = { version = "0.5.1", features = ["json"] }
 serde = "1.0.219"

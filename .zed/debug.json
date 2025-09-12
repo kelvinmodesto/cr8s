@@ -3,7 +3,7 @@
     "label": "Build & Debug native binary",
     "adapter": "CodeLLDB",
     "request": "launch",
-    "program": "${workspaceFolder}/target/debug/rocket-users-api-rs",
+    "program": "${workspaceFolder}/target/debug/cr8s",
     "pid": "cargo",
     "build": {
       "command": "cargo",
