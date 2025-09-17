@@ -1,0 +1,6 @@
+CREATE TABLE rustaceans (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    email VARCHAR(255) NOT NULL UNIQUE,
+    created_at TIMESTAMP DEFAULT NOW() NOT NULL
+);
