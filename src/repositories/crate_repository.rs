@@ -24,8 +24,12 @@ impl CrateRepository {
             .await
     }
 
-    pub async fn update(conn: &mut AsyncPgConnection, existent_crate: Crate) -> QueryResult<Crate> {
-        diesel::update(crates::table.find(existent_crate.id))
+    pub async fn update(
+        conn: &mut AsyncPgConnection,
+        id: i32,
+        existent_crate: Crate,
+    ) -> QueryResult<Crate> {
+        diesel::update(crates::table.find(id))
             .set((
                 crates::rustacean_id.eq(existent_crate.rustacean_id),
                 crates::name.eq(existent_crate.name),
