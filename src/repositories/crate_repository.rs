@@ -9,7 +9,7 @@ use diesel_async::{AsyncPgConnection, RunQueryDsl};
 pub struct CrateRepository;
 
 impl CrateRepository {
-    pub async fn findOne(conn: &mut AsyncPgConnection, id: i32) -> QueryResult<Crate> {
+    pub async fn view(conn: &mut AsyncPgConnection, id: i32) -> QueryResult<Crate> {
         crates::table.find(id).get_result(conn).await
     }
 

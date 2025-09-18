@@ -8,12 +8,12 @@ use diesel_async::{AsyncPgConnection, RunQueryDsl};
 pub struct RustaceanRepository;
 
 impl RustaceanRepository {
-    pub async fn findOne(conn: &mut AsyncPgConnection, id: i32) -> QueryResult<Rustacean> {
+    pub async fn view(conn: &mut AsyncPgConnection, id: i32) -> QueryResult<Rustacean> {
         rustaceans::table.find(id).get_result(conn).await
     }
 
     pub async fn find(conn: &mut AsyncPgConnection, limit: i64) -> QueryResult<Vec<Rustacean>> {
-        rustaceans::table.limit(limit).get_results(conn).await
+        rustaceans::table.limit(limit).load(conn).await
     }
 
     pub async fn create(
