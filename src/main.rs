@@ -17,6 +17,11 @@ async fn main() {
                 routes::rustaceans::create_rustacean,
                 routes::rustaceans::update_rustacean,
                 routes::rustaceans::delete_rustacean,
+                routes::crates::get_crates,
+                routes::crates::view_crate,
+                routes::crates::create_crate,
+                routes::crates::update_crate,
+                routes::crates::delete_crate,
             ],
         )
         .attach(config::postgres::PgConn::init())
