@@ -13,7 +13,7 @@ fn test_get_rustaceans() {
     let rustacean2: Value = common::create_test_rustacean(&client);
 
     let response = client
-        .get("http://127.0.0.1:8000/rustaceans")
+        .get(format!("{}/rustaceans", common::APP_HOST))
         .send()
         .unwrap();
     assert_eq!(response.status(), StatusCode::OK);
@@ -30,7 +30,7 @@ fn test_get_rustaceans() {
 fn test_create_rustacean() {
     let client = Client::new();
     let response = client
-        .post("http://127.0.0.1:8000/rustaceans")
+        .post(format!("{}/rustaceans", common::APP_HOST))
         .json(&json!({ "name": "foo bar", "email": "foo@bar.com" }))
         .send()
         .unwrap();
@@ -52,7 +52,8 @@ fn test_view_rustacean() {
 
     let response = client
         .get(format!(
-            "http://127.0.0.1:8000/rustaceans/{}",
+            "{}/rustaceans/{}",
+            common::APP_HOST,
             rustacean["id"]
         ))
         .send()
@@ -75,7 +76,8 @@ fn test_update_rustacean() {
 
     let response = client
         .put(format!(
-            "http://127.0.0.1:8000/rustaceans/{}",
+            "{}/rustaceans/{}",
+            common::APP_HOST,
             rustacean["id"]
         ))
         .json(&json!({ "name": "Monkey D. Luffy", "email": "nika@mugiwara.d" }))
@@ -99,7 +101,8 @@ fn test_delete_rustacean() {
 
     let response = client
         .delete(format!(
-            "http://127.0.0.1:8000/rustaceans/{}",
+            "{}/rustaceans/{}",
+            common::APP_HOST,
             rustacean["id"]
         ))
         .send()
