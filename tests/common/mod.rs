@@ -1,7 +1,6 @@
 use reqwest::StatusCode;
 use reqwest::blocking::Client;
-use rocket::serde::json::serde_json::json;
-use serde_json::Value;
+use serde_json::{Value, json};
 
 pub static APP_HOST: &str = "http://127.0.0.1:8000";
 
