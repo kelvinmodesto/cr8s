@@ -16,23 +16,29 @@ pub fn create_test_rustacean(client: &Client) -> Value {
     response.json().unwrap()
 }
 
+pub fn create_test_crate(client: &Client, rustacean: &Value) -> Value {
+    let response = client
+        .post(format!("{}/crates", APP_HOST))
+        .json(&json!({
+            "name": "Thousand Sunny",
+            "code": "mugiwara",
+            "version": "0.10.3",
+            "description": "A crew of pirates that use to free people around the world" ,
+            "rustacean_id": rustacean["id"]
+        }))
+        .send()
+        .unwrap();
+    assert_eq!(response.status(), StatusCode::CREATED);
+
+    response.json().unwrap()
+}
+
 pub fn delete_test_rustacean(client: &Client, rustacean: Value) {
     let response = client
         .delete(format!("{}/rustaceans/{}", APP_HOST, rustacean["id"]))
         .send()
         .unwrap();
     assert_eq!(response.status(), StatusCode::NO_CONTENT);
-}
-
-pub fn create_test_crate(client: &Client, rustacean: Value) {
-    let response = client
-        .post(format!("{}/crates", APP_HOST))
-        .json(&json!({ "name": "Thousand Sunny", "code": "mugiwara", "rustacean_id": rustacean["id"]}))
-        .send()
-        .unwrap();
-    assert_eq!(response.status(), StatusCode::CREATED);
-
-    response.json().unwrap()
 }
 
 pub fn delete_test_crate(client: &Client, a_crate: Value) {

@@ -1,8 +1,6 @@
 use reqwest::StatusCode;
 use reqwest::blocking::Client;
-use rocket::form::validate::Contains;
-use rocket::serde::json::serde_json::json;
-use serde_json::Value;
+use serde_json::{Value, json};
 
 pub mod common;
 
@@ -19,8 +17,9 @@ fn test_get_rustaceans() {
     assert_eq!(response.status(), StatusCode::OK);
 
     let json: Value = response.json().unwrap();
-    assert!(json.as_array().contains(&rustacean1));
-    assert!(json.as_array().contains(&rustacean2));
+    println!("{}", json.as_array().unwrap().contains(&rustacean1));
+    assert!(json.as_array().unwrap().contains(&rustacean1));
+    assert!(json.as_array().unwrap().contains(&rustacean2));
 
     common::delete_test_rustacean(&client, rustacean1);
     common::delete_test_rustacean(&client, rustacean2);
