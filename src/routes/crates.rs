@@ -1,6 +1,7 @@
 use crate::config::postgres::PgConn;
 use crate::models::{Crate, NewCrate};
 use crate::repositories::CrateRepository;
+use crate::utils::error::server_error;
 use rocket::http::Status;
 use rocket::response::status::{Custom, NoContent};
 use rocket::serde::json::{Json, json};
@@ -12,7 +13,7 @@ pub async fn get_crates(mut db: Connection<PgConn>) -> Result<Value, Custom<Valu
     CrateRepository::find(&mut db, 100)
         .await
         .map(|cr| json!(cr))
-        .map_err(|_| Custom(Status::InternalServerError, json!("Error")))
+        .map_err(|e| server_error(e.into()))
 }
 
 #[rocket::get("/crates/<id>")]
@@ -20,7 +21,7 @@ pub async fn view_crate(mut db: Connection<PgConn>, id: i32) -> Result<Value, Cu
     CrateRepository::view(&mut db, id)
         .await
         .map(|cr| json!(cr))
-        .map_err(|_| Custom(Status::InternalServerError, json!("Error")))
+        .map_err(|e| server_error(e.into()))
 }
 
 #[rocket::post("/crates", format = "json", data = "<new_crate>")]
@@ -43,7 +44,7 @@ pub async fn update_crate(
     CrateRepository::update(&mut db, id, crate_data.into_inner())
         .await
         .map(|cr| json!(cr))
-        .map_err(|_| Custom(Status::InternalServerError, json!("Error")))
+        .map_err(|e| server_error(e.into()))
 }
 
 #[rocket::delete("/crates/<id>")]
@@ -51,5 +52,5 @@ pub async fn delete_crate(mut db: Connection<PgConn>, id: i32) -> Result<NoConte
     CrateRepository::delete(&mut db, id)
         .await
         .map(|_| NoContent)
-        .map_err(|_| Custom(Status::InternalServerError, json!("Error")))
+        .map_err(|e| server_error(e.into()))
 }

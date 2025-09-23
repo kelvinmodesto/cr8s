@@ -1,6 +1,7 @@
 use crate::config::postgres::PgConn;
 use crate::models::{NewRustacean, Rustacean};
 use crate::repositories::RustaceanRepository;
+use crate::utils::error::server_error;
 use rocket::http::Status;
 use rocket::response::status::{Custom, NoContent};
 use rocket::serde::json::{Json, json};
@@ -20,7 +21,7 @@ pub async fn view_rustacean(mut db: Connection<PgConn>, id: i32) -> Result<Value
     RustaceanRepository::view(&mut db, id)
         .await
         .map(|rustacean| json!(rustacean))
-        .map_err(|_| Custom(Status::InternalServerError, json!("Error")))
+        .map_err(|e| server_error(e.into()))
 }
 
 #[rocket::post("/rustaceans", format = "json", data = "<new_rustacean>")]
@@ -31,7 +32,7 @@ pub async fn create_rustacean(
     RustaceanRepository::create(&mut db, new_rustacean.into_inner())
         .await
         .map(|rustacean| Custom(Status::Created, json!(rustacean)))
-        .map_err(|_| Custom(Status::InternalServerError, json!("Error")))
+        .map_err(|e| server_error(e.into()))
 }
 
 #[rocket::put("/rustaceans/<id>", format = "json", data = "<rustacean>")]
@@ -43,7 +44,7 @@ pub async fn update_rustacean(
     RustaceanRepository::update(&mut db, id, rustacean.into_inner())
         .await
         .map(|rustacean| json!(rustacean))
-        .map_err(|_| Custom(Status::InternalServerError, json!("Error")))
+        .map_err(|e| server_error(e.into()))
 }
 
 #[rocket::delete("/rustaceans/<id>")]
@@ -54,5 +55,5 @@ pub async fn delete_rustacean(
     RustaceanRepository::delete(&mut db, id)
         .await
         .map(|_| NoContent)
-        .map_err(|_| Custom(Status::InternalServerError, json!("Error")))
+        .map_err(|e| server_error(e.into()))
 }

@@ -5,6 +5,7 @@ mod models;
 mod repositories;
 mod routes;
 mod schema;
+mod utils;
 
 #[rocket::main]
 async fn main() {
