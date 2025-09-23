@@ -63,7 +63,7 @@ fn test_get_crates() {
 }
 
 #[test]
-fn test_view_rustacean() {
+fn test_view_crate() {
     let client = Client::new();
     let rustacean: Value = common::create_test_rustacean(&client);
     let a_crate: Value = common::create_test_crate(&client, &rustacean);
@@ -90,7 +90,7 @@ fn test_view_rustacean() {
 }
 
 #[test]
-fn test_update_rustacean() {
+fn test_update_crate() {
     let client = Client::new();
     let rustacean: Value = common::create_test_rustacean(&client);
     let a_crate: Value = common::create_test_crate(&client, &rustacean);
@@ -127,7 +127,7 @@ fn test_update_rustacean() {
 }
 
 #[test]
-fn test_delete_rustacean() {
+fn test_delete_crate() {
     let client = Client::new();
     let rustacean: Value = common::create_test_rustacean(&client);
     let a_crate: Value = common::create_test_crate(&client, &rustacean);
@@ -137,4 +137,5 @@ fn test_delete_rustacean() {
         .send()
         .unwrap();
     assert_eq!(response.status(), StatusCode::NO_CONTENT);
+    common::delete_test_rustacean(&client, rustacean);
 }
