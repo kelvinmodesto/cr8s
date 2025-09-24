@@ -1,7 +1,7 @@
 use crate::config::postgres::PgConn;
 use crate::models::{NewRustacean, Rustacean};
 use crate::repositories::RustaceanRepository;
-use crate::utils::error::server_error;
+use crate::utils::error::{handle_diesel_error, server_error};
 use rocket::http::Status;
 use rocket::response::status::{Custom, NoContent};
 use rocket::serde::json::{Json, json};
@@ -21,7 +21,7 @@ pub async fn view_rustacean(mut db: Connection<PgConn>, id: i32) -> Result<Value
     RustaceanRepository::view(&mut db, id)
         .await
         .map(|rustacean| json!(rustacean))
-        .map_err(|e| server_error(e.into()))
+        .map_err(handle_diesel_error)
 }
 
 #[rocket::post("/rustaceans", format = "json", data = "<new_rustacean>")]

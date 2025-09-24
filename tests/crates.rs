@@ -90,6 +90,21 @@ fn test_view_crate() {
 }
 
 #[test]
+fn test_view_crate_not_found() {
+    let client = Client::new();
+    let rustacean: Value = common::create_test_rustacean(&client);
+    let a_crate: Value = common::create_test_crate(&client, &rustacean);
+    let response = client
+        .get(format!("{}/crates/9999999", common::APP_HOST))
+        .send()
+        .unwrap();
+    assert_eq!(response.status(), StatusCode::NOT_FOUND);
+
+    common::delete_test_crate(&client, a_crate);
+    common::delete_test_rustacean(&client, rustacean);
+}
+
+#[test]
 fn test_update_crate() {
     let client = Client::new();
     let rustacean: Value = common::create_test_rustacean(&client);

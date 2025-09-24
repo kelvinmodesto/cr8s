@@ -1,7 +1,7 @@
 use crate::config::postgres::PgConn;
 use crate::models::{Crate, NewCrate};
 use crate::repositories::CrateRepository;
-use crate::utils::error::server_error;
+use crate::utils::error::{handle_diesel_error, server_error};
 use rocket::http::Status;
 use rocket::response::status::{Custom, NoContent};
 use rocket::serde::json::{Json, json};
@@ -21,7 +21,7 @@ pub async fn view_crate(mut db: Connection<PgConn>, id: i32) -> Result<Value, Cu
     CrateRepository::view(&mut db, id)
         .await
         .map(|cr| json!(cr))
-        .map_err(|e| server_error(e.into()))
+        .map_err(handle_diesel_error)
 }
 
 #[rocket::post("/crates", format = "json", data = "<new_crate>")]
