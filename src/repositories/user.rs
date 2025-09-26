@@ -1,6 +1,7 @@
 use crate::{
-    models::{NewUser, User},
-    schema::users,
+    models::{NewRole, NewUser, NewUserRole, User, UserRole},
+    repositories::RoleRepository,
+    schema::{users, users_roles},
 };
 use diesel::prelude::*;
 use diesel_async::{AsyncPgConnection, RunQueryDsl};
@@ -16,11 +17,43 @@ impl UserRepository {
         users::table.limit(limit).load(conn).await
     }
 
-    pub async fn create(conn: &mut AsyncPgConnection, new_user: NewUser) -> QueryResult<User> {
-        diesel::insert_into(users::table)
+    pub async fn create(
+        conn: &mut AsyncPgConnection,
+        new_user: NewUser,
+        role_codes: Vec<String>,
+    ) -> QueryResult<User> {
+        let user = diesel::insert_into(users::table)
             .values(new_user)
-            .get_result(conn)
-            .await
+            .get_result::<User>(conn)
+            .await?;
+
+        for role_code in role_codes {
+            let new_user_role = {
+                if let Ok(role) = RoleRepository::find_by_code(conn, role_code.to_owned()).await {
+                    NewUserRole {
+                        user_id: user.id,
+                        role_id: role.id,
+                    }
+                } else {
+                    let new_role = NewRole {
+                        code: role_code.to_owned(),
+                        name: role_code.to_owned(),
+                    };
+
+                    let role = RoleRepository::create(conn, new_role).await?;
+                    NewUserRole {
+                        user_id: user.id,
+                        role_id: role.id,
+                    }
+                }
+            };
+
+            diesel::insert_into(users_roles::table)
+                .values(new_user_role)
+                .get_result::<UserRole>(conn)
+                .await?;
+        }
+        Ok(user)
     }
 
     pub async fn update(conn: &mut AsyncPgConnection, id: i32, user: User) -> QueryResult<User> {
