@@ -13,12 +13,12 @@ async fn main() {
                 .arg_required_else_help(true)
                 .subcommand(
                     Command::new("create")
-                        .about("create new user")
+                        .about("create a new user")
                         .arg_required_else_help(true)
                         .arg(Arg::new("username").required(true))
                         .arg(Arg::new("password").required(true))
                         .arg(
-                            Arg::new("role")
+                            Arg::new("roles")
                                 .required(true)
                                 .num_args(1..)
                                 .value_delimiter(','),
