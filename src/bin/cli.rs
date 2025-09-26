@@ -2,7 +2,8 @@ use clap::{Arg, Command};
 
 extern crate c8rs;
 
-fn main() {
+#[tokio::main]
+async fn main() {
     let matches = Command::new("c8rs")
         .about("c8rs commands")
         .arg_required_else_help(true)
@@ -35,9 +36,31 @@ fn main() {
 
     if let Some(("users", sub_matches)) = matches.subcommand() {
         match sub_matches.subcommand() {
-            Some(("create", create_sub_matches)) => {}
-            Some(("list", list_sub_matches)) => {}
-            Some(("delete", delete_sub_matches)) => {}
+            Some(("create", create_sub_matches)) => {
+                c8rs::utils::commands::create_user(
+                    create_sub_matches
+                        .get_one::<String>("username")
+                        .unwrap()
+                        .to_owned(),
+                    create_sub_matches
+                        .get_one::<String>("password")
+                        .unwrap()
+                        .to_owned(),
+                    create_sub_matches
+                        .get_many::<String>("roles")
+                        .unwrap()
+                        .map(|v| v.to_owned())
+                        .collect(),
+                )
+                .await
+            }
+            Some(("list", _)) => c8rs::utils::commands::list_users().await,
+            Some(("delete", delete_sub_matches)) => {
+                c8rs::utils::commands::delete_user(
+                    delete_sub_matches.get_one::<i32>("i32").unwrap().to_owned(),
+                )
+                .await
+            }
             _ => {}
         }
     }
