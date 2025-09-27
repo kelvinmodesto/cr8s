@@ -1,4 +1,4 @@
-use clap::{Arg, Command};
+use clap::{Arg, Command, value_parser};
 
 extern crate c8rs;
 
@@ -29,7 +29,11 @@ async fn main() {
                     Command::new("delete")
                         .about("delete user by ID")
                         .arg_required_else_help(true)
-                        .arg(Arg::new("id").required(true)),
+                        .arg(
+                            Arg::new("id")
+                                .required(true)
+                                .value_parser(value_parser!(i32)),
+                        ),
                 ),
         )
         .get_matches();
@@ -57,7 +61,7 @@ async fn main() {
             Some(("list", _)) => c8rs::utils::commands::list_users().await,
             Some(("delete", delete_sub_matches)) => {
                 c8rs::utils::commands::delete_user(
-                    delete_sub_matches.get_one::<i32>("i32").unwrap().to_owned(),
+                    delete_sub_matches.get_one::<i32>("id").unwrap().to_owned(),
                 )
                 .await
             }

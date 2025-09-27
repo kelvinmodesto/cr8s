@@ -1,7 +1,7 @@
 use crate::{
-    models::{NewRole, NewUser, NewUserRole, User, UserRole},
+    models::{NewRole, NewUser, NewUserRole, Role, User, UserRole},
     repositories::RoleRepository,
-    schema::{users, users_roles},
+    schema::{roles, users, users_roles},
 };
 use diesel::prelude::*;
 use diesel_async::{AsyncPgConnection, RunQueryDsl};
@@ -9,6 +9,17 @@ use diesel_async::{AsyncPgConnection, RunQueryDsl};
 pub struct UserRepository;
 
 impl UserRepository {
+    pub async fn find_with_roles(
+        conn: &mut AsyncPgConnection,
+    ) -> QueryResult<Vec<(User, Vec<(UserRole, Role)>)>> {
+        let users = users::table.load::<User>(conn).await?;
+        let result = users_roles::table
+            .inner_join(roles::table)
+            .load::<(UserRole, Role)>(conn)
+            .await?
+            .grouped_by(&users);
+        Ok(users.into_iter().zip(result).collect())
+    }
     pub async fn view(conn: &mut AsyncPgConnection, id: i32) -> QueryResult<User> {
         users::table.find(id).get_result(conn).await
     }
@@ -67,6 +78,9 @@ impl UserRepository {
     }
 
     pub async fn delete(conn: &mut AsyncPgConnection, id: i32) -> QueryResult<usize> {
+        diesel::delete(users_roles::table.filter(users_roles::user_id.eq(id)))
+            .execute(conn)
+            .await?;
         diesel::delete(users::table.find(id)).execute(conn).await
     }
 }
