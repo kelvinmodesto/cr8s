@@ -1,4 +1,4 @@
-use crate::config::postgres::PgConn;
+use crate::config::PgConn;
 use crate::models::{Crate, NewCrate};
 use crate::repositories::CrateRepository;
 use crate::utils::error::{handle_diesel_error, server_error};
