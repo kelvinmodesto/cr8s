@@ -29,8 +29,12 @@ pub async fn login(
         }
     };
 
-    let session_id = authorize_user(&user, credentials.into_inner())
-        .map_err(|_| Custom(Status::Unauthorized, json!("Invalid credentials")))?;
+    let session_id = authorize_user(&user, credentials.into_inner()).map_err(|_| {
+        Custom(
+            Status::Unauthorized,
+            json!({"error": "Invalid credentials"}),
+        )
+    })?;
 
     cache
         .set_ex::<String, i32, ()>(format!("sessions/{}", session_id), user.id, 3 * 60 * 60)
