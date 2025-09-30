@@ -16,7 +16,11 @@ services:
     build: .
     environment:
       - DATABASE_URL=postgres://postgres:postgres@postgres:5432/app_db
-      - ROCKET_DATABASES={postgres={url=postgres://postgres:postgres@postgres:5432/app_db}}
+      - |
+        ROCKET_DATABASES={
+          postgres={url=postgres://postgres:postgres@postgres:5432/app_db},
+          redis={url=redis://redis:6379}
+        }
       - REDIS_URL=redis://redis:6379
     command: cargo watch -x run
     ports:
