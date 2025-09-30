@@ -13,7 +13,10 @@ diesel = { version = "~2.1.1", features = ["postgres", "chrono"] }
 diesel-async = { version = "~0.4.1", features = ["postgres"] }
 rand = "0.9.2"
 rocket = { version = "0.5.1", features = ["json"] }
-rocket_db_pools = { version = "0.2.0", features = ["diesel_postgres"] }
+rocket_db_pools = { version = "0.2.0", features = [
+    "diesel_postgres",
+    "deadpool_redis",
+] }
 serde = "1.0.228"
 serde_json = "1.0.145"
 tokio = "1.47.1"
