@@ -1,12 +1,10 @@
 use reqwest::{StatusCode, blocking::Client};
-use rocket::form::validate::Len;
 use serde_json::{Value, json};
 use std::process::Command;
 
 pub mod common;
 
-#[test]
-fn test_sucessful_login() {
+fn create_user_by_cli() {
     let _ = Command::new("cargo")
         .arg("run")
         .arg("--bin")
@@ -17,7 +15,11 @@ fn test_sucessful_login() {
         .arg("1234")
         .arg("admin")
         .output();
+}
 
+#[test]
+fn test_sucessful_login() {
+    create_user_by_cli();
     let client = Client::new();
     let response = client
         .post(format!("{}/login", common::APP_HOST))
@@ -37,17 +39,7 @@ fn test_sucessful_login() {
 
 #[test]
 fn test_unsucessful_login() {
-    let _ = Command::new("cargo")
-        .arg("run")
-        .arg("--bin")
-        .arg("cli")
-        .arg("users")
-        .arg("create")
-        .arg("test_admin")
-        .arg("1234")
-        .arg("admin")
-        .output();
-
+    create_user_by_cli();
     let client = Client::new();
     let response = client
         .post(format!("{}/login", common::APP_HOST))
