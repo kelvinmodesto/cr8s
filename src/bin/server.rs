@@ -21,7 +21,8 @@ async fn main() {
                 c8rs::routes::crates::delete_crate,
             ],
         )
-        .attach(c8rs::config::postgres::PgConn::init())
+        .attach(c8rs::config::CacheConn::init())
+        .attach(c8rs::config::PgConn::init())
         .launch()
         .await;
 }
