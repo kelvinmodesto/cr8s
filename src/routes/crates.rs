@@ -1,5 +1,5 @@
 use crate::config::PgConn;
-use crate::models::{Crate, NewCrate};
+use crate::models::{Crate, EditorUser, NewCrate, User};
 use crate::repositories::CrateRepository;
 use crate::utils::error::{handle_diesel_error, server_error};
 use rocket::http::Status;
@@ -9,7 +9,7 @@ use rocket_db_pools::Connection;
 use serde_json::Value;
 
 #[rocket::get("/crates")]
-pub async fn get_crates(mut db: Connection<PgConn>) -> Result<Value, Custom<Value>> {
+pub async fn get_crates(mut db: Connection<PgConn>, _user: User) -> Result<Value, Custom<Value>> {
     CrateRepository::find(&mut db, 100)
         .await
         .map(|cr| json!(cr))
@@ -17,7 +17,11 @@ pub async fn get_crates(mut db: Connection<PgConn>) -> Result<Value, Custom<Valu
 }
 
 #[rocket::get("/crates/<id>")]
-pub async fn view_crate(mut db: Connection<PgConn>, id: i32) -> Result<Value, Custom<Value>> {
+pub async fn view_crate(
+    mut db: Connection<PgConn>,
+    id: i32,
+    _user: User,
+) -> Result<Value, Custom<Value>> {
     CrateRepository::view(&mut db, id)
         .await
         .map(|cr| json!(cr))
@@ -28,6 +32,7 @@ pub async fn view_crate(mut db: Connection<PgConn>, id: i32) -> Result<Value, Cu
 pub async fn create_crate(
     mut db: Connection<PgConn>,
     new_crate: Json<NewCrate>,
+    _user: EditorUser,
 ) -> Result<Custom<Value>, Custom<Value>> {
     CrateRepository::create(&mut db, new_crate.into_inner())
         .await
@@ -40,6 +45,7 @@ pub async fn update_crate(
     mut db: Connection<PgConn>,
     id: i32,
     crate_data: Json<Crate>,
+    _user: EditorUser,
 ) -> Result<Value, Custom<Value>> {
     CrateRepository::update(&mut db, id, crate_data.into_inner())
         .await
@@ -48,7 +54,11 @@ pub async fn update_crate(
 }
 
 #[rocket::delete("/crates/<id>")]
-pub async fn delete_crate(mut db: Connection<PgConn>, id: i32) -> Result<NoContent, Custom<Value>> {
+pub async fn delete_crate(
+    mut db: Connection<PgConn>,
+    id: i32,
+    _user: EditorUser,
+) -> Result<NoContent, Custom<Value>> {
     CrateRepository::delete(&mut db, id)
         .await
         .map(|_| NoContent)

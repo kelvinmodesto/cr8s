@@ -1,5 +1,5 @@
 use crate::config::PgConn;
-use crate::models::{NewRustacean, Rustacean};
+use crate::models::{EditorUser, NewRustacean, Rustacean, User};
 use crate::repositories::RustaceanRepository;
 use crate::utils::error::{handle_diesel_error, server_error};
 use rocket::http::Status;
@@ -9,7 +9,10 @@ use rocket_db_pools::Connection;
 use serde_json::Value;
 
 #[rocket::get("/rustaceans")]
-pub async fn get_rustaceans(mut db: Connection<PgConn>) -> Result<Value, Custom<Value>> {
+pub async fn get_rustaceans(
+    mut db: Connection<PgConn>,
+    _user: User,
+) -> Result<Value, Custom<Value>> {
     RustaceanRepository::find(&mut db, 100)
         .await
         .map(|rustaceans| json!(rustaceans))
@@ -17,7 +20,11 @@ pub async fn get_rustaceans(mut db: Connection<PgConn>) -> Result<Value, Custom<
 }
 
 #[rocket::get("/rustaceans/<id>")]
-pub async fn view_rustacean(mut db: Connection<PgConn>, id: i32) -> Result<Value, Custom<Value>> {
+pub async fn view_rustacean(
+    mut db: Connection<PgConn>,
+    id: i32,
+    _user: User,
+) -> Result<Value, Custom<Value>> {
     RustaceanRepository::view(&mut db, id)
         .await
         .map(|rustacean| json!(rustacean))
@@ -28,6 +35,7 @@ pub async fn view_rustacean(mut db: Connection<PgConn>, id: i32) -> Result<Value
 pub async fn create_rustacean(
     mut db: Connection<PgConn>,
     new_rustacean: Json<NewRustacean>,
+    _user: EditorUser,
 ) -> Result<Custom<Value>, Custom<Value>> {
     RustaceanRepository::create(&mut db, new_rustacean.into_inner())
         .await
@@ -40,6 +48,7 @@ pub async fn update_rustacean(
     mut db: Connection<PgConn>,
     id: i32,
     rustacean: Json<Rustacean>,
+    _user: EditorUser,
 ) -> Result<Value, Custom<Value>> {
     RustaceanRepository::update(&mut db, id, rustacean.into_inner())
         .await
@@ -51,6 +60,7 @@ pub async fn update_rustacean(
 pub async fn delete_rustacean(
     mut db: Connection<PgConn>,
     id: i32,
+    _user: EditorUser,
 ) -> Result<NoContent, Custom<Value>> {
     RustaceanRepository::delete(&mut db, id)
         .await
