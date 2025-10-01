@@ -25,7 +25,7 @@ pub async fn create_user(username: String, password: String, role_codes: Vec<Str
         .unwrap();
     println!("User created {:?}", user);
 
-    let roles = RoleRepository::find_by_user(&mut connection, user)
+    let roles = RoleRepository::find_by_user(&mut connection, &user)
         .await
         .unwrap();
     println!("Roles assigned {:?}", roles);
