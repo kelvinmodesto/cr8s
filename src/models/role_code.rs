@@ -1,9 +1,9 @@
 use diesel::deserialize::{FromSql, FromSqlRow};
 use diesel::expression::AsExpression;
 use diesel::pg::{Pg, PgValue};
-use diesel::prelude::*;
 use diesel::serialize::ToSql;
 use diesel::sql_types::Text;
+use std::fmt::{Display, Formatter, Result as ResultFormatter};
 use std::io::Write;
 use std::str::FromStr;
 
@@ -15,13 +15,14 @@ pub enum RoleCode {
     Viewer,
 }
 
-impl ToString for RoleCode {
-    fn to_string(&self) -> String {
-        match self {
-            RoleCode::Admin => String::from("admin"),
-            RoleCode::Editor => String::from("editor"),
-            RoleCode::Viewer => String::from("viewer"),
-        }
+impl Display for RoleCode {
+    fn fmt(&self, f: &mut Formatter<'_>) -> ResultFormatter {
+        let s = match self {
+            RoleCode::Admin => "admin",
+            RoleCode::Editor => "editor",
+            RoleCode::Viewer => "viewer",
+        };
+        write!(f, "{}", s)
     }
 }
 

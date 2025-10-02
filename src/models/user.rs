@@ -72,10 +72,6 @@ impl<'r> FromRequest<'r> for EditorUser {
     type Error = ();
 
     async fn from_request(req: &'r Request<'_>) -> Outcome<Self, Self::Error> {
-        // TODO: Use try_outcome for Graceful Shutdown
-        // use rocket::outcome::try_outcome;
-        // try_outcome!();
-
         let user = req
             .guard::<User>()
             .await
@@ -86,11 +82,9 @@ impl<'r> FromRequest<'r> for EditorUser {
             .expect("Cannot connect to Postgres in request guard");
 
         if let Ok(roles) = RoleRepository::find_by_user(&mut db, &user).await {
-            let is_editor = roles.iter().any(|r| match r.code {
-                RoleCode::Admin => true,
-                RoleCode::Editor => true,
-                _ => false,
-            });
+            let is_editor = roles
+                .iter()
+                .any(|r| matches!(r.code, RoleCode::Admin | RoleCode::Editor));
 
             if is_editor {
                 return Outcome::Success(EditorUser(user));
