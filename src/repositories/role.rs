@@ -1,5 +1,5 @@
 use crate::{
-    models::{NewRole, Role, User, UserRole},
+    models::{NewRole, Role, RoleCode, User, UserRole},
     schema::roles,
 };
 use diesel::prelude::*;
@@ -15,7 +15,7 @@ impl RoleRepository {
         roles::table.filter(roles::id.eq_any(ids)).load(conn).await
     }
 
-    pub async fn find_by_code(conn: &mut AsyncPgConnection, code: String) -> QueryResult<Role> {
+    pub async fn find_by_code(conn: &mut AsyncPgConnection, code: &RoleCode) -> QueryResult<Role> {
         roles::table.filter(roles::code.eq(code)).first(conn).await
     }
 

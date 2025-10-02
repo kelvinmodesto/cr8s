@@ -1,5 +1,5 @@
 use crate::{
-    models::{NewRole, NewUser, NewUserRole, Role, User, UserRole},
+    models::{NewRole, NewUser, NewUserRole, Role, RoleCode, User, UserRole},
     repositories::RoleRepository,
     schema::{roles, users, users_roles},
 };
@@ -38,7 +38,7 @@ impl UserRepository {
     pub async fn create(
         conn: &mut AsyncPgConnection,
         new_user: NewUser,
-        role_codes: Vec<String>,
+        role_codes: Vec<RoleCode>,
     ) -> QueryResult<User> {
         let user = diesel::insert_into(users::table)
             .values(new_user)
@@ -47,7 +47,7 @@ impl UserRepository {
 
         for role_code in role_codes {
             let new_user_role = {
-                if let Ok(role) = RoleRepository::find_by_code(conn, role_code.to_owned()).await {
+                if let Ok(role) = RoleRepository::find_by_code(conn, &role_code).await {
                     NewUserRole {
                         user_id: user.id,
                         role_id: role.id,
