@@ -98,3 +98,7 @@ pub fn get_client_with_logged_in_viewer() -> Client {
 pub fn get_client_with_logged_in_admin() -> Client {
     get_logged_in_client("test_admin", "admin")
 }
+
+pub fn get_client_with_logged_in_editor() -> Client {
+    get_logged_in_client("test_editor", "editor")
+}

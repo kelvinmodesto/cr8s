@@ -4,51 +4,56 @@ use std::process::Command;
 
 pub mod common;
 
-fn create_user_by_cli() {
-    let _ = Command::new("cargo")
-        .arg("run")
-        .arg("--bin")
-        .arg("cli")
-        .arg("users")
-        .arg("create")
-        .arg("test_admin")
-        .arg("1234")
-        .arg("admin")
-        .output();
-}
+#[cfg(test)]
+mod auth_happy_path {
+    use super::*;
 
-#[test]
-fn test_sucessful_login() {
-    create_user_by_cli();
-    let client = Client::new();
-    let response = client
-        .post(format!("{}/login", common::APP_HOST))
-        .json(&json!({
-            "username": "test_admin",
-            "password": "1234",
-        }))
-        .send()
-        .unwrap();
+    fn create_user_by_cli() {
+        let _ = Command::new("cargo")
+            .arg("run")
+            .arg("--bin")
+            .arg("cli")
+            .arg("users")
+            .arg("create")
+            .arg("test_admin")
+            .arg("1234")
+            .arg("admin")
+            .output();
+    }
 
-    assert_eq!(response.status(), StatusCode::OK);
+    #[test]
+    fn test_sucessful_login() {
+        create_user_by_cli();
+        let client = Client::new();
+        let response = client
+            .post(format!("{}/login", common::APP_HOST))
+            .json(&json!({
+                "username": "test_admin",
+                "password": "1234",
+            }))
+            .send()
+            .unwrap();
 
-    let json: Value = response.json().unwrap();
-    assert!(json.get("token").is_some());
-    assert_eq!(json["token"].as_str().unwrap().len(), 128);
-}
+        assert_eq!(response.status(), StatusCode::OK);
 
-#[test]
-fn test_unsucessful_login() {
-    create_user_by_cli();
-    let client = Client::new();
-    let response = client
-        .post(format!("{}/login", common::APP_HOST))
-        .json(&json!({
-            "username": "test_admin",
-            "password": "12345",
-        }))
-        .send()
-        .unwrap();
+        let json: Value = response.json().unwrap();
+        assert!(json.get("token").is_some());
+        assert_eq!(json["token"].as_str().unwrap().len(), 128);
+    }
 
-    assert_eq!(response.status(), StatusCode::UNAUTHORIZED);
+    #[test]
+    fn test_unsucessful_login() {
+        create_user_by_cli();
+        let client = Client::new();
+        let response = client
+            .post(format!("{}/login", common::APP_HOST))
+            .json(&json!({
+                "username": "test_admin",
+                "password": "12345",
+            }))
+            .send()
+            .unwrap();
+
+        assert_eq!(response.status(), StatusCode::UNAUTHORIZED);
+    }
 }
