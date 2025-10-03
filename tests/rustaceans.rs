@@ -1,6 +1,6 @@
 use reqwest::StatusCode;
+use reqwest::blocking::Client;
 use serde_json::{Value, json};
-
 pub mod common;
 
 #[cfg(test)]
@@ -129,24 +129,24 @@ mod rustaceans_happy_path {
 
 #[cfg(test)]
 mod rustaceans_error_cases {
+
     use super::*;
 
     #[test]
-    fn test_get_rustaceans() {
-        let viewer_client = common::get_client_with_logged_in_viewer();
-        let editor_client = common::get_client_with_logged_in_editor();
+    fn test_viewer_cannot_get_rustaceans() {
+        let client = Client::new();
 
-        let rustacean1: Value = common::create_test_rustacean(&editor_client);
-        let rustacean2: Value = common::create_test_rustacean(&editor_client);
+        let rustacean1: Value = common::create_test_rustacean(&client);
+        let rustacean2: Value = common::create_test_rustacean(&client);
 
-        let response = viewer_client
+        let response = client
             .get(format!("{}/rustaceans", common::APP_HOST))
             .send()
             .unwrap();
         assert_eq!(response.status(), StatusCode::UNAUTHORIZED);
 
-        common::delete_test_rustacean(&editor_client, rustacean1);
-        common::delete_test_rustacean(&editor_client, rustacean2);
+        common::delete_test_rustacean(&client, rustacean1);
+        common::delete_test_rustacean(&client, rustacean2);
     }
 
     #[test]

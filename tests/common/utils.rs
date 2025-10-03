@@ -6,6 +6,19 @@ use std::process::Command;
 
 pub static APP_HOST: &str = "http://127.0.0.1:8000";
 
+pub fn create_user_by_cli() {
+    let _ = Command::new("cargo")
+        .arg("run")
+        .arg("--bin")
+        .arg("cli")
+        .arg("users")
+        .arg("create")
+        .arg("test_admin")
+        .arg("1234")
+        .arg("admin")
+        .output();
+}
+
 pub fn create_test_rustacean(client: &Client) -> Value {
     let response = client
         .post(format!("{}/rustaceans", APP_HOST))

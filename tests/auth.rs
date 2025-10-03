@@ -1,6 +1,5 @@
 use reqwest::{StatusCode, blocking::Client};
 use serde_json::{Value, json};
-use std::process::Command;
 
 pub mod common;
 
@@ -8,22 +7,9 @@ pub mod common;
 mod auth_happy_path {
     use super::*;
 
-    fn create_user_by_cli() {
-        let _ = Command::new("cargo")
-            .arg("run")
-            .arg("--bin")
-            .arg("cli")
-            .arg("users")
-            .arg("create")
-            .arg("test_admin")
-            .arg("1234")
-            .arg("admin")
-            .output();
-    }
-
     #[test]
     fn test_sucessful_login() {
-        create_user_by_cli();
+        common::create_user_by_cli();
         let client = Client::new();
         let response = client
             .post(format!("{}/login", common::APP_HOST))
@@ -43,7 +29,7 @@ mod auth_happy_path {
 
     #[test]
     fn test_unsucessful_login() {
-        create_user_by_cli();
+        common::create_user_by_cli();
         let client = Client::new();
         let response = client
             .post(format!("{}/login", common::APP_HOST))
@@ -55,5 +41,42 @@ mod auth_happy_path {
             .unwrap();
 
         assert_eq!(response.status(), StatusCode::UNAUTHORIZED);
+    }
+}
+
+#[cfg(test)]
+mod auth_error_cases {
+    use super::*;
+
+    #[test]
+    fn test_unsucessful_login() {
+        common::create_user_by_cli();
+        let client = Client::new();
+        let response = client
+            .post(format!("{}/login", common::APP_HOST))
+            .json(&json!({
+                "username": "test_admin",
+                "password": "wrong_password",
+            }))
+            .send()
+            .unwrap();
+
+        assert_eq!(response.status(), StatusCode::UNAUTHORIZED);
+    }
+
+    #[test]
+    fn test_non_existent_username() {
+        common::create_user_by_cli();
+        let client = Client::new();
+        let response = client
+            .post(format!("{}/login", common::APP_HOST))
+            .json(&json!({
+                "username": "nobody",
+                "password": "1234",
+            }))
+            .send()
+            .unwrap();
+
+        assert_eq!(response.status(), StatusCode::NOT_FOUND);
     }
 }
