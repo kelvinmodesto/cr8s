@@ -32,7 +32,6 @@ pub struct NewUser {
 impl<'r> FromRequest<'r> for User {
     type Error = ();
     async fn from_request(req: &'r Request<'_>) -> Outcome<Self, Self::Error> {
-        // Authorization: Bearer SESSION_ID_128_CHARACTERS_LONG
         let session_header = req
             .headers()
             .get_one("Authorization")
@@ -40,10 +39,6 @@ impl<'r> FromRequest<'r> for User {
             .filter(|v| v.len() == 2 && v[0] == "Bearer");
 
         if let Some(header_value) = session_header {
-            // TODO: Use try_outcome for Graceful Shutdown
-            // use rocket::outcome::try_outcome;
-            // try_outcome!();
-
             let mut cache = req
                 .guard::<Connection<CacheConn>>()
                 .await
