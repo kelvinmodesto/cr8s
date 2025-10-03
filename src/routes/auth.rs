@@ -20,7 +20,7 @@ pub async fn login(
         Ok(user) => user,
         Err(DieselError::NotFound) => {
             return Err(Custom(
-                Status::Unauthorized,
+                Status::NotFound,
                 json!({"error": "Invalid credentials"}),
             ));
         }
