@@ -34,6 +34,16 @@ async fn main() {
                                 .required(true)
                                 .value_parser(value_parser!(i32)),
                         ),
+                )
+                .subcommand(
+                    Command::new("digest")
+                        .about("Send a digest with latest crates via email")
+                        .arg(Arg::new("email"))
+                        .arg(
+                            Arg::new("hours_since")
+                                .required(true)
+                                .value_parser(value_parser!(i32)),
+                        ),
                 ),
         )
         .get_matches();
@@ -62,6 +72,16 @@ async fn main() {
             Some(("delete", delete_sub_matches)) => {
                 c8rs::utils::commands::delete_user(
                     delete_sub_matches.get_one::<i32>("id").unwrap().to_owned(),
+                )
+                .await
+            }
+            Some(("digest", sub_matches)) => {
+                c8rs::utils::commands::digest_send(
+                    sub_matches.get_one::<String>("email").unwrap().to_owned(),
+                    sub_matches
+                        .get_one::<i32>("hours_since")
+                        .unwrap()
+                        .to_owned(),
                 )
                 .await
             }
