@@ -13,7 +13,7 @@ pub async fn get_crates(mut db: Connection<PgConn>, _user: User) -> Result<Value
     CrateRepository::find(&mut db, 100)
         .await
         .map(|cr| json!(cr))
-        .map_err(|e| server_error(e.into()))
+        .map_err(handle_diesel_error)
 }
 
 #[rocket::get("/crates/<id>")]
@@ -37,7 +37,7 @@ pub async fn create_crate(
     CrateRepository::create(&mut db, new_crate.into_inner())
         .await
         .map(|cr| Custom(Status::Created, json!(cr)))
-        .map_err(|_| Custom(Status::InternalServerError, json!("Error")))
+        .map_err(handle_diesel_error)
 }
 
 #[rocket::put("/crates/<id>", format = "json", data = "<crate_data>")]
@@ -50,7 +50,7 @@ pub async fn update_crate(
     CrateRepository::update(&mut db, id, crate_data.into_inner())
         .await
         .map(|cr| json!(cr))
-        .map_err(|e| server_error(e.into()))
+        .map_err(handle_diesel_error)
 }
 
 #[rocket::delete("/crates/<id>")]
@@ -62,5 +62,5 @@ pub async fn delete_crate(
     CrateRepository::delete(&mut db, id)
         .await
         .map(|_| NoContent)
-        .map_err(|e| server_error(e.into()))
+        .map_err(handle_diesel_error)
 }
