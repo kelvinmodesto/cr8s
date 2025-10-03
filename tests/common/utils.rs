@@ -67,7 +67,7 @@ pub fn get_logged_in_client(username: &str, role: &str) -> Client {
     let response = client
         .post(format!("{}/login", APP_HOST))
         .json(&json!({
-            "username": "test_admin",
+            "username": username,
             "password": "1234",
         }))
         .send()
