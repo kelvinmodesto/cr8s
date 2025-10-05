@@ -1,4 +1,5 @@
 use crate::config::{CacheConn, PgConn};
+use crate::models::User;
 use crate::repositories::UserRepository;
 use crate::utils::auth::{Credentials, authorize_user};
 use crate::utils::error::server_error;
@@ -44,4 +45,9 @@ pub async fn login(
     Ok(json!({
         "token": session_id,
     }))
+}
+
+#[rocket::get("/me")]
+pub fn me(user: User) -> Value {
+    json!(user)
 }

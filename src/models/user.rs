@@ -12,13 +12,12 @@ use rocket_db_pools::Connection;
 use rocket_db_pools::deadpool_redis::redis::AsyncCommands;
 use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Queryable, Serialize, Deserialize, Identifiable)]
+#[derive(Debug, Queryable, Serialize, Identifiable)]
 pub struct User {
-    #[serde(skip_deserializing)]
     pub id: i32,
     pub username: String,
+    #[serde(skip_serializing)]
     pub password: String,
-    #[serde(skip_deserializing)]
     pub created_at: NaiveDateTime,
 }
 

@@ -42,6 +42,26 @@ mod auth_happy_path {
 
         assert_eq!(response.status(), StatusCode::UNAUTHORIZED);
     }
+
+    #[test]
+    fn test_me() {
+        let client = common::get_client_with_logged_in_admin();
+
+        let response = client
+            .get(format!("{}/me", common::APP_HOST))
+            .send()
+            .unwrap();
+
+        assert_eq!(response.status(), StatusCode::OK);
+
+        let json: Value = response.json().unwrap();
+
+        assert!(json.get("id").is_some());
+        assert!(json.get("username").is_some());
+        assert!(json.get("created_at").is_some());
+        assert_eq!(json["username"], "test_admin");
+        assert!(json.get("password").is_none());
+    }
 }
 
 #[cfg(test)]
@@ -78,5 +98,17 @@ mod auth_error_cases {
             .unwrap();
 
         assert_eq!(response.status(), StatusCode::NOT_FOUND);
+    }
+
+    #[test]
+    fn test_me_error() {
+        let client = Client::new();
+
+        let response = client
+            .get(format!("{}/me", common::APP_HOST))
+            .send()
+            .unwrap();
+
+        assert_eq!(response.status(), StatusCode::UNAUTHORIZED);
     }
 }
