@@ -34,22 +34,22 @@ async fn main() {
                                 .required(true)
                                 .value_parser(value_parser!(i32)),
                         ),
-                )
-                .subcommand(
-                    Command::new("digest")
-                        .about("Send a digest with latest crates via email")
-                        .arg(Arg::new("email"))
-                        .arg(
-                            Arg::new("hours_since")
-                                .required(true)
-                                .value_parser(value_parser!(i32)),
-                        ),
+                ),
+        )
+        .subcommand(
+            Command::new("digest")
+                .about("Send a digest with latest crates via email")
+                .arg(Arg::new("email"))
+                .arg(
+                    Arg::new("hours_since")
+                        .required(true)
+                        .value_parser(value_parser!(i32)),
                 ),
         )
         .get_matches();
 
-    if let Some(("users", sub_matches)) = matches.subcommand() {
-        match sub_matches.subcommand() {
+    match matches.subcommand() {
+        Some(("users", sub_matches)) => match sub_matches.subcommand() {
             Some(("create", create_sub_matches)) => {
                 c8rs::utils::commands::create_user(
                     create_sub_matches
@@ -75,17 +75,21 @@ async fn main() {
                 )
                 .await
             }
-            Some(("digest", sub_matches)) => {
-                c8rs::utils::commands::digest_send(
-                    sub_matches.get_one::<String>("email").unwrap().to_owned(),
-                    sub_matches
-                        .get_one::<i32>("hours_since")
-                        .unwrap()
-                        .to_owned(),
-                )
-                .await
-            }
             _ => {}
+        },
+        Some(("digest", digest_sub_matches)) => {
+            c8rs::utils::commands::digest_send(
+                digest_sub_matches
+                    .get_one::<String>("email")
+                    .unwrap()
+                    .to_owned(),
+                digest_sub_matches
+                    .get_one::<i32>("hours_since")
+                    .unwrap()
+                    .to_owned(),
+            )
+            .await
         }
+        _ => {}
     }
 }

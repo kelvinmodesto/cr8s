@@ -1,8 +1,7 @@
-use crate::{
-    models::{Crate, NewCrate},
-    schema::crates,
-};
+use crate::models::{Crate, NewCrate};
+use crate::schema::crates;
 
+use diesel::dsl::{IntervalDsl, now};
 use diesel::prelude::*;
 use diesel_async::{AsyncPgConnection, RunQueryDsl};
 
@@ -15,6 +14,16 @@ impl CrateRepository {
 
     pub async fn find(conn: &mut AsyncPgConnection, limit: i64) -> QueryResult<Vec<Crate>> {
         crates::table.limit(limit).get_results(conn).await
+    }
+
+    pub async fn find_since(
+        conn: &mut AsyncPgConnection,
+        hours_since: i32,
+    ) -> QueryResult<Vec<Crate>> {
+        crates::table
+            .filter(crates::created_at.ge(now - hours_since.hours()))
+            .load(conn)
+            .await
     }
 
     pub async fn create(conn: &mut AsyncPgConnection, new_crate: NewCrate) -> QueryResult<Crate> {
