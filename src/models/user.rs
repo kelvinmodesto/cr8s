@@ -4,9 +4,10 @@ use crate::repositories::{RoleRepository, UserRepository};
 use crate::schema::*;
 use chrono::NaiveDateTime;
 use diesel::prelude::*;
-use rocket::Request;
+use rocket::fairing::{Fairing, Info, Kind};
 use rocket::http::Status;
 use rocket::request::{FromRequest, Outcome};
+use rocket::{Request, Response};
 use rocket_db_pools::Connection;
 use rocket_db_pools::deadpool_redis::redis::AsyncCommands;
 use serde::{Deserialize, Serialize};
@@ -26,6 +27,30 @@ pub struct User {
 pub struct NewUser {
     pub username: String,
     pub password: String,
+}
+
+#[rocket::options("/<_route_args..>")]
+pub fn options(_route_args: Option<std::path::PathBuf>) {
+    // do nothing
+}
+
+pub struct Cors;
+
+#[rocket::async_trait]
+impl Fairing for Cors {
+    fn info(&self) -> Info {
+        Info {
+            name: "Append CORS headers in responses",
+            kind: Kind::Response,
+        }
+    }
+
+    async fn on_response<'r>(&self, _req: &'r Request<'_>, res: &mut Response<'r>) {
+        res.set_raw_header("Access-Control-Allow-Origin", "*");
+        res.set_raw_header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE");
+        res.set_raw_header("Access-Control-Allow-Headers", "*");
+        res.set_raw_header("Access-Control-Allow-Credentials", "true");
+    }
 }
 
 #[rocket::async_trait]
