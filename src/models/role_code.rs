@@ -7,7 +7,7 @@ use std::fmt::{Display, Formatter, Result as ResultFormatter};
 use std::io::Write;
 use std::str::FromStr;
 
-#[derive(Debug, AsExpression, FromSqlRow)]
+#[derive(Debug, Clone, PartialEq, AsExpression, FromSqlRow)]
 #[diesel(sql_type=Text)]
 pub enum RoleCode {
     Admin,

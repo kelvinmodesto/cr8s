@@ -108,7 +108,7 @@ impl<'r> FromRequest<'r> for User {
     }
 }
 
-pub struct EditorUser(User);
+pub struct EditorUser(pub User);
 
 #[rocket::async_trait]
 impl<'r> FromRequest<'r> for EditorUser {
