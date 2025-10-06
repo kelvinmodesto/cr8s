@@ -11,7 +11,7 @@ A modern, high-performance REST API for managing Rust crates and Rustaceans, bui
 - **Session Management**: Redis-powered session storage
 - **Email Integration**: SMTP support for notifications
 - **Database Migrations**: Automated database schema management with Diesel
-- **Comprehensive Testing**: 109+ unit tests with high code coverage
+- **Comprehensive Testing**: unit tests with high code coverage
 - **Docker Support**: Full containerization with Docker Compose
 
 ## 🏗️ Architecture
@@ -289,7 +289,7 @@ cargo run --bin cli users delete <user_id>
 
 ## 🧪 Testing
 
-The application includes a comprehensive test suite with 109+ tests covering:
+The application includes a comprehensive test suite with tests covering:
 
 - Repository layer functionality
 - Route handler behavior
