@@ -395,17 +395,6 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - **Issues**: Report bugs and request features via GitHub issues
 - **Discussions**: Join community discussions in GitHub Discussions
 
-## 🎯 Roadmap
-
-- [ ] GraphQL API support
-- [ ] OpenAPI/Swagger documentation
-- [ ] Crate dependency tracking
-- [ ] Advanced search and filtering
-- [ ] Metrics and monitoring integration
-- [ ] Rate limiting
-- [ ] API versioning
-- [ ] WebSocket support for real-time updates
-
 ## 📊 Performance
 
 - **Response Time**: < 100ms for most endpoints
