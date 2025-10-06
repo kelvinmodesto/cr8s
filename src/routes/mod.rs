@@ -1,3 +1,6 @@
+pub mod auth;
 pub mod crates;
 pub mod rustaceans;
-pub mod auth;
+
+#[cfg(test)]
+mod tests;

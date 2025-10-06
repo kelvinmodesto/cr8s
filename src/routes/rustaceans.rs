@@ -1,7 +1,7 @@
 use crate::config::PgConn;
 use crate::models::{EditorUser, NewRustacean, Rustacean, User};
 use crate::repositories::RustaceanRepository;
-use crate::utils::error::{handle_diesel_error, server_error};
+use crate::utils::error::handle_diesel_error;
 use rocket::http::Status;
 use rocket::response::status::{Custom, NoContent};
 use rocket::serde::json::{Json, json};
