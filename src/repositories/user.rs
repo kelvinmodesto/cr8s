@@ -80,3 +80,59 @@ impl UserRepository {
         diesel::delete(users::table.find(id)).execute(conn).await
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::models::{NewUser, RoleCode, User};
+
+    // Mock data helpers
+    fn create_test_user() -> User {
+        User {
+            id: 1,
+            username: "testuser".to_string(),
+            password: "hashed_password".to_string(),
+            created_at: chrono::DateTime::from_timestamp(1640995200, 0)
+                .unwrap()
+                .naive_utc(),
+        }
+    }
+
+    fn create_new_test_user() -> NewUser {
+        NewUser {
+            username: "newuser".to_string(),
+            password: "new_hashed_password".to_string(),
+        }
+    }
+
+    #[test]
+    fn test_new_user_creation() {
+        let new_user = create_new_test_user();
+        assert_eq!(new_user.username, "newuser");
+        assert_eq!(new_user.password, "new_hashed_password");
+    }
+
+    #[test]
+    fn test_user_fields() {
+        let user = create_test_user();
+        assert_eq!(user.id, 1);
+        assert_eq!(user.username, "testuser");
+        assert_eq!(user.password, "hashed_password");
+        assert!(user.created_at.and_utc().timestamp() >= 0);
+    }
+
+    #[test]
+    fn test_role_code_variants_in_user_context() {
+        let role_codes = vec![RoleCode::Admin, RoleCode::Editor];
+
+        for role_code in role_codes {
+            let new_user = NewUser {
+                username: format!("user_{:?}", role_code).to_lowercase(),
+                password: "password".to_string(),
+            };
+
+            assert!(!new_user.username.is_empty());
+            assert!(!new_user.password.is_empty());
+        }
+    }
+}

@@ -54,3 +54,55 @@ impl CrateRepository {
         diesel::delete(crates::table.find(id)).execute(conn).await
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use crate::models::{Crate, NewCrate};
+
+    // Mock data helpers
+    fn create_test_crate() -> Crate {
+        Crate {
+            id: 1,
+            rustacean_id: 1,
+            code: "test_crate".to_string(),
+            name: "Test Crate".to_string(),
+            version: "0.1.0".to_string(),
+            description: Some("A test crate".to_string()),
+            created_at: chrono::DateTime::from_timestamp(1640995200, 0)
+                .unwrap()
+                .naive_utc(),
+        }
+    }
+
+    fn create_new_test_crate() -> NewCrate {
+        NewCrate {
+            rustacean_id: 1,
+            code: "new_test_crate".to_string(),
+            name: "New Test Crate".to_string(),
+            version: "0.2.0".to_string(),
+            description: Some("A new test crate".to_string()),
+        }
+    }
+
+    #[test]
+    fn test_new_crate_creation() {
+        let new_crate = create_new_test_crate();
+        assert_eq!(new_crate.rustacean_id, 1);
+        assert_eq!(new_crate.code, "new_test_crate");
+        assert_eq!(new_crate.name, "New Test Crate");
+        assert_eq!(new_crate.version, "0.2.0");
+        assert_eq!(new_crate.description, Some("A new test crate".to_string()));
+    }
+
+    #[test]
+    fn test_crate_fields() {
+        let test_crate = create_test_crate();
+        assert_eq!(test_crate.id, 1);
+        assert_eq!(test_crate.rustacean_id, 1);
+        assert_eq!(test_crate.code, "test_crate");
+        assert_eq!(test_crate.name, "Test Crate");
+        assert_eq!(test_crate.version, "0.1.0");
+        assert_eq!(test_crate.description, Some("A test crate".to_string()));
+        assert!(test_crate.created_at.and_utc().timestamp() >= 0);
+    }
+}
