@@ -4,9 +4,9 @@ use argon2::password_hash::{Error, SaltString};
 use argon2::{Argon2, PasswordHash, PasswordHasher, PasswordVerifier};
 use rand::Rng;
 use rand::distr::Alphanumeric;
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, Serialize)]
 pub struct Credentials {
     pub username: String,
     pub password: String,
