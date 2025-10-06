@@ -24,4 +24,8 @@ tera = "1.20.0"
 tokio = "1.47.1"
 
 [dev-dependencies]
+async-trait = "0.1.89"
+diesel_migrations = "~2.1.0"
+mockall = "0.13.1"
 reqwest = { version = "0.12.23", features = ["json", "blocking"] }
+tokio-test = "0.4.4"
