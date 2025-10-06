@@ -2,32 +2,31 @@ services:
   postgres:
     image: postgres:latest
     environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: app_db
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      POSTGRES_DB: ${POSTGRES_DB:-app_db}
     command: ["postgres", "-c", "log_statement=all"]
     ports:
-      - "5434:5432"
+      - "${POSTGRES_PORT:-5434}:5432"
   redis:
     image: redis:latest
     ports:
-      - "6379:6379"
+      - "${REDIS_PORT:-6379}:6379"
   app:
     build: .
     environment:
-      - DATABASE_URL=postgres://postgres:postgres@postgres:5432/app_db
+      - DATABASE_URL=postgres://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@postgres:5432/${POSTGRES_DB:-app_db}
       - |
         ROCKET_DATABASES={
-          postgres={url=postgres://postgres:postgres@postgres:5432/app_db},
-          redis={url=redis://redis:6379}
+          postgres={url=postgres://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@postgres:5432/${POSTGRES_DB:-app_db}},
+          redis={url=redis://redis:${REDIS_INTERNAL_PORT:-6379}}
         }
-      - REDIS_URL=redis://redis:6379
-      - SMTP_HOST=smtp.gmail.com
-      - SMTP_USERNAME=lorem@ipsum.com
-      - SMTP_PASSWORD=lroem12131_134
-      - FOO
+      - REDIS_URL=redis://redis:${REDIS_INTERNAL_PORT:-6379}
+      - SMTP_HOST=${SMTP_HOST:-smtp.gmail.com}
+      - SMTP_USERNAME=${SMTP_USERNAME:-lorem@ipsum.com}
+      - SMTP_PASSWORD=${SMTP_PASSWORD:-lroem12131_134}
     command: cargo watch -x run
     ports:
-      - "3456:8000"
+      - "${APP_PORT:-3456}:8000"
     volumes:
       - ./:/app/
