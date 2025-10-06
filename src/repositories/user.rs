@@ -1,8 +1,6 @@
-use crate::{
-    models::{NewRole, NewUser, NewUserRole, Role, RoleCode, User, UserRole},
-    repositories::RoleRepository,
-    schema::{roles, users, users_roles},
-};
+use crate::models::{NewRole, NewUser, NewUserRole, Role, RoleCode, User, UserRole};
+use crate::repositories::RoleRepository;
+use crate::schema::{roles, users, users_roles};
 use diesel::prelude::*;
 use diesel_async::{AsyncPgConnection, RunQueryDsl};
 

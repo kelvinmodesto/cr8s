@@ -145,7 +145,7 @@ mod rustaceans_error_cases {
             .json(&json!({ "name": "foo bar", "email": "foo@bar.com" }))
             .send()
             .unwrap();
-        assert_eq!(response.status(), StatusCode::INTERNAL_SERVER_ERROR);
+        assert_eq!(response.status(), StatusCode::UNAUTHORIZED);
     }
 
     #[test]
@@ -198,7 +198,7 @@ mod rustaceans_error_cases {
             .json(&json!({ "name": "Monkey D. Luffy", "email": "nika@mugiwara.d" }))
             .send()
             .unwrap();
-        assert_eq!(response.status(), StatusCode::INTERNAL_SERVER_ERROR);
+        assert_eq!(response.status(), StatusCode::UNAUTHORIZED);
 
         common::delete_test_rustacean(&client_editor, rustacean);
     }
@@ -217,6 +217,6 @@ mod rustaceans_error_cases {
             ))
             .send()
             .unwrap();
-        assert_eq!(response.status(), StatusCode::INTERNAL_SERVER_ERROR);
+        assert_eq!(response.status(), StatusCode::UNAUTHORIZED);
     }
 }

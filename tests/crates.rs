@@ -166,7 +166,7 @@ mod crates_error_cases {
             }))
             .send()
             .unwrap();
-        assert_eq!(response.status(), StatusCode::INTERNAL_SERVER_ERROR);
+        assert_eq!(response.status(), StatusCode::UNAUTHORIZED);
 
         common::delete_test_rustacean(&client_admin, rustacean);
     }
@@ -210,7 +210,7 @@ mod crates_error_cases {
     }
 
     #[test]
-    fn test_update_crate() {
+    fn test_update_crate_error() {
         let client_admin = common::get_client_with_logged_in_admin();
         let client = Client::new();
 
@@ -229,7 +229,7 @@ mod crates_error_cases {
             .send()
             .unwrap();
 
-        assert_eq!(response.status(), StatusCode::INTERNAL_SERVER_ERROR);
+        assert_eq!(response.status(), StatusCode::UNAUTHORIZED);
 
         common::delete_test_crate(&client_admin, a_crate);
         common::delete_test_rustacean(&client_admin, rustacean);

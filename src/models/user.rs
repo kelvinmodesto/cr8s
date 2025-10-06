@@ -63,20 +63,44 @@ impl<'r> FromRequest<'r> for User {
             .filter(|v| v.len() == 2 && v[0] == "Bearer");
 
         if let Some(header_value) = session_header {
-            let mut cache = req
-                .guard::<Connection<CacheConn>>()
-                .await
-                .expect("Can not connect to Redis in Request guard");
-            let mut db = req
-                .guard::<Connection<PgConn>>()
-                .await
-                .expect("Can not connect to Postgres in Request guard");
+            let mut cache = match req.guard::<Connection<CacheConn>>().await {
+                Outcome::Success(conn) => conn,
+                Outcome::Error(_) => {
+                    eprintln!("Failed to connect to Redis during authentication");
+                    return Outcome::Error((Status::ServiceUnavailable, ()));
+                }
+                Outcome::Forward(status) => {
+                    eprintln!("Redis connection forwarded with status {:?}", status);
+                    return Outcome::Forward(status);
+                }
+            };
+
+            let mut db = match req.guard::<Connection<PgConn>>().await {
+                Outcome::Success(conn) => conn,
+                Outcome::Error(_) => {
+                    eprintln!("Failed to connect to Postgres during authentication");
+                    return Outcome::Error((Status::ServiceUnavailable, ()));
+                }
+                Outcome::Forward(status) => {
+                    eprintln!("Postgres connection forwarded with status {:?}", status);
+                    return Outcome::Forward(status);
+                }
+            };
+
             let result = cache
                 .get::<String, i32>(format!("sessions/{}", header_value[1]))
                 .await;
-            if let Ok(user_id) = result {
-                if let Ok(user) = UserRepository::find(&mut db, user_id).await {
-                    return Outcome::Success(user);
+            match result {
+                Ok(user_id) => match UserRepository::find(&mut db, user_id).await {
+                    Ok(user) => return Outcome::Success(user),
+                    Err(err) => {
+                        eprintln!("Failed to find user {}: {:?}", user_id, err);
+                        return Outcome::Error((Status::Unauthorized, ()));
+                    }
+                },
+                Err(err) => {
+                    eprintln!("Failed to get session from Redis: {:?}", err);
+                    return Outcome::Error((Status::Unauthorized, ()));
                 }
             }
         }
@@ -91,24 +115,47 @@ impl<'r> FromRequest<'r> for EditorUser {
     type Error = ();
 
     async fn from_request(req: &'r Request<'_>) -> Outcome<Self, Self::Error> {
-        let user = req
-            .guard::<User>()
-            .await
-            .expect("Cannot retrieve current logged in user");
-        let mut db = req
-            .guard::<Connection<PgConn>>()
-            .await
-            .expect("Cannot connect to Postgres in request guard");
+        let user = match req.guard::<User>().await {
+            Outcome::Success(user) => user,
+            Outcome::Error((status, _)) => {
+                eprintln!("Failed to retrieve curent logged in user");
+                return Outcome::Error((status, ()));
+            }
+            Outcome::Forward(status) => {
+                eprintln!("User guard forwarded with status: {:?}", status);
+                return Outcome::Forward(status);
+            }
+        };
 
-        if let Ok(roles) = RoleRepository::find_by_user(&mut db, &user).await {
-            let is_editor = roles
-                .iter()
-                .any(|r| matches!(r.code, RoleCode::Admin | RoleCode::Editor));
+        let mut db = match req.guard::<Connection<PgConn>>().await {
+            Outcome::Success(conn) => conn,
+            Outcome::Error(_) => {
+                eprintln!("Failed to connect to Postgres for role check");
+                return Outcome::Error((Status::ServiceUnavailable, ()));
+            }
+            Outcome::Forward(status) => {
+                eprintln!("User guard forwarded with status: {:?}", status);
+                return Outcome::Forward(status);
+            }
+        };
 
-            if is_editor {
-                return Outcome::Success(EditorUser(user));
+        match RoleRepository::find_by_user(&mut db, &user).await {
+            Ok(roles) => {
+                let is_editor = roles
+                    .iter()
+                    .any(|r| matches!(r.code, RoleCode::Admin | RoleCode::Editor));
+
+                if is_editor {
+                    return Outcome::Success(EditorUser(user));
+                } else {
+                    eprintln!("User {} lacks editor privileges", user.id);
+                    return Outcome::Error((Status::Forbidden, ()));
+                }
+            }
+            Err(err) => {
+                eprintln!("Failed to fetch roles for user {}: {:?}", user.id, err);
+                return Outcome::Error((Status::ServiceUnavailable, ()));
             }
         }
-        Outcome::Error((Status::Unauthorized, ()))
     }
 }
