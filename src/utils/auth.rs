@@ -14,7 +14,7 @@ pub struct Credentials {
 
 pub fn authorize_user(user: &User, credentials: Credentials) -> Result<String, Error> {
     let argon2 = Argon2::default();
-    let db_hash = PasswordHash::new(&user.password).unwrap();
+    let db_hash = PasswordHash::new(&user.password)?;
     argon2.verify_password(credentials.password.as_bytes(), &db_hash)?;
     let session_id = rand::rng()
         .sample_iter(&Alphanumeric)
